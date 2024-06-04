@@ -36,7 +36,11 @@ Route::group([
         ->name('categories.force-delete');
 
     //Route::resource('/categories', CategoriesController::class);
-    //Route::resource('/products', ProductsController::class);
+
+    // Resource to call all CRUD functions
+    // we use only when we use resource with only create and store functions
+    // Route::resource('/products', ProductsController::class)
+    // ->only('create','store');
 
     Route::get('products/import', [ImportProductsController::class, 'create'])
         ->name('products.import');
