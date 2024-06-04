@@ -143,16 +143,23 @@ class CategoriesController extends Controller
         } catch (Exception $e) {
             return redirect()->route('dashboard.categories.index')
                 ->with('info', 'Record not found!');
+                // ->with to send data to view with key 'info'
         }
 
         // SELECT * FROM categories WHERE id <> $id
         // AND (parent_id IS NULL OR parent_id <> $id)
         $parents = Category::where('id', '<>', $id)
+        // use here to use parameter 'id'
             ->where(function ($query) use ($id) {
+                // check if field is null
                 $query->whereNull('parent_id')
+                    // Or
                     ->orWhere('parent_id', '<>', $id);
+                    // And
+                    // ->where('parent_id', '<>', $id);
             })
             ->get();
+            // to check the sql query we can use ->dd() instead of ->get()
 
         return view('dashboard.categories.edit', compact('category', 'parents'));
     }
@@ -178,6 +185,7 @@ class CategoriesController extends Controller
             $data['image'] = $new_image;
         }
 
+        // update will update in database but fill will update the object only so we need to call save after that
         $category->update($data);
         //$category->fill($request->all())->save();
 
@@ -199,6 +207,7 @@ class CategoriesController extends Controller
     {
         Gate::authorize('categories.delete');
 
+        // findOrFail (if id not found will return 404 page)
         //$category = Category::findOrFail($id);
         $category->delete();
 
@@ -211,13 +220,17 @@ class CategoriesController extends Controller
 
     protected function uploadImgae(Request $request)
     {
+        // check if request has file
         if (!$request->hasFile('image')) {
             return;
         }
 
         $file = $request->file('image'); // UploadedFile Object
 
-        $path = $file->store('uploads', [
+        // we will store image in uploads folder in public folder (public is the disk name) and return this path to store in database
+        // you can control in file path and create new disk (local or s3 (amazon)) from config/filesystems.php
+        // $path = $file->storeAs('uploads', 'image.jpg' [ // to store with same name and will override
+        $path = $file->store('uploads', [ // will create file with random name
             'disk' => 'public',
         ]);
         return $path;
@@ -243,6 +256,7 @@ class CategoriesController extends Controller
         $category = Category::onlyTrashed()->findOrFail($id);
         $category->forceDelete();
 
+        // delete old image from storage
         if ($category->image) {
             Storage::disk('public')->delete($category->image);
         }
