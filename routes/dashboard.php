@@ -26,7 +26,7 @@ Route::group([
 
     // Route::get('/categories/{category}', [CategoriesController::class, 'show'])
     //     ->name('categories.show')
-    //     ->where('category', '\d+');
+    //     ->where('category', '\d+'); // ensure that the parameter is digit
 
     Route::get('/categories/trash', [CategoriesController::class, 'trash'])
         ->name('categories.trash');

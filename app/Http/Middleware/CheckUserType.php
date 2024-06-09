@@ -21,6 +21,7 @@ class CheckUserType
         if (!$user) {
             return redirect()->route('login');
         }
+        // in_array to check value in array >> the value is $user->type in array $types
         if (!in_array($user->type, $types)) {
             abort(403);
         }

@@ -20,6 +20,7 @@ class UpdateUserLastActiveAt
     {
         $user = $request->user();
 
+        // we used forceFill because the field password not in fillable array in model
         if ($user instanceof User) {
             $user->forceFill([
                 'last_active_at' => Carbon::now(),

@@ -25,7 +25,15 @@ class CategoriesController extends Controller
             abort(403);
         }
 
+        // request is a helper method to recive request
         $request = request();
+
+        /*
+        $query = Category::query();
+        if ($name = $request->query('name')) {
+            $query->where('name','LIKE',"%$name%")
+        }
+        */
 
         // SELECT a.*, b.name as parent_name
         // FROM categories as a
@@ -45,7 +53,9 @@ class CategoriesController extends Controller
                     $query->where('status', '=', 'active');
                 },
             ])
+            // filter is a scope with parameter
             ->filter($request->query())
+            // categories. is a table name
             ->orderBy('categories.name')
             ->paginate(); // Return Collection object
 
@@ -89,13 +99,14 @@ class CategoriesController extends Controller
         Gate::authorize('categories.create');
 
         $clean_data = $request->validate(Category::rules(), [
+            // return customized text
             'required' => 'This field (:attribute) is required',
             'name.unique' => 'This name is already exists!',
         ]);
 
         // Request merge
         // merge field not found in $request
-        // create slug from 'name' field using Str class 
+        // create slug from 'name' field using Str class
         // slug used to create parts of a URL that identify a page with a human readable slug
         $request->merge([
             'slug' => Str::slug($request->post('name')),
@@ -173,6 +184,9 @@ class CategoriesController extends Controller
      */
     public function update(CategoryRequest $request, $id)
     {
+        // we created CategoryRequest that has rules of validation
+        // the validation will be in request ^^^
+
         //$request->validate(Category::rules($id));
 
         $category = Category::findOrFail($id);
