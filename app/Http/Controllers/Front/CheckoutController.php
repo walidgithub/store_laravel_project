@@ -39,6 +39,9 @@ class CheckoutController extends Controller
 
         $items = $cart->get()->groupBy('product.store_id')->all();
 
+        // if you have multi actions for database and you want to make all of them not one of them
+        // so we start beginTransaction at the began of actions and end with commit after all actions
+        // if error we make rollBack
         DB::beginTransaction();
         try {
             foreach ($items as $store_id => $cart_items) {

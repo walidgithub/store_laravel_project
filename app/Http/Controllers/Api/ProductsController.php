@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Response;
 class ProductsController extends Controller
 {
 
+    // use middleware of token for all funcions except index and show
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except('index', 'show');
@@ -26,9 +27,12 @@ class ProductsController extends Controller
     {
         
         $products = Product::filter($request->query())
+        // here we selected specific columns from table in relation
+        // id,name in category and id,name in store ...
             ->with('category:id,name', 'store:id,name', 'tags:id,name')
             ->paginate();
 
+            // return response with new form using resource
         return ProductResource::collection($products);
     }
 
@@ -57,6 +61,7 @@ class ProductsController extends Controller
         $product = Product::create($request->all());
 
 
+        // we use ::json with API
         return Response::json($product, 201, [
             'Location' => route('products.show', $product->id),
         ]);
@@ -73,6 +78,8 @@ class ProductsController extends Controller
         return new ProductResource($product);
 
         return $product
+        // here we can't use ->with because it will return object and you must use ->first after that so
+        // we used load instead
             ->load('category:id,name', 'store:id,name', 'tags:id,name');
     }
 
@@ -85,6 +92,7 @@ class ProductsController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        // sometimes rule if we don't want update a field if not changed
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string|max:255',
@@ -101,7 +109,7 @@ class ProductsController extends Controller
 
         $product->update($request->all());
 
-
+        // we use ::json with API
         return Response::json($product);
     }
 
@@ -114,11 +122,11 @@ class ProductsController extends Controller
     public function destroy($id)
     {
         $user = Auth::guard('sanctum')->user();
-        if (!$user->tokenCan('products.delete')) {
-            return response([
-                'message' => 'Not allowed'
-            ], 403);
-        }
+        // if (!$user->tokenCan('products.delete')) {
+        //     return response([
+        //         'message' => 'Not allowed'
+        //     ], 403);
+        // }
 
         Product::destroy($id);
         return [

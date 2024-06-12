@@ -76,6 +76,7 @@ class Order extends Model
     public static function getNextOrderNumber()
     {
         // SELECT MAX(number) FROM orders
+        // Carbon::now() from laravel
         $year =  Carbon::now()->year;
         $number = Order::whereYear('created_at', $year)->max('number');
         if ($number) {

@@ -26,6 +26,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::apiResource('products', ProductsController::class);
 
 Route::post('auth/access-tokens', [AccessTokensController::class, 'store'])
+// user can not send request to get token if he already authenticated
+// so we will use this middleware guest and gaurd sanctum to handle this
     ->middleware('guest:sanctum');
 
 Route::delete('auth/access-tokens/{token?}', [AccessTokensController::class, 'destroy'])

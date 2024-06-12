@@ -12,6 +12,7 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class AccessTokensController extends Controller
 {
+    // store token in database with user data
     public function store(Request $request)
     {
         $request->validate([
@@ -21,12 +22,18 @@ class AccessTokensController extends Controller
             'abilities' => 'nullable|array'
         ]);
 
+        // get user data by email
         $user = User::where('email', $request->email)->first();
+        // check data if has user and password
         if ($user && Hash::check($request->password, $user->password)) {
             
+            // create token
+            // we use device_name to help us to create token
             $device_name = $request->post('device_name', $request->userAgent());
             $token = $user->createToken($device_name, $request->post('abilities'));
 
+            // we use ::json with API
+            // return token
             return Response::json([
                 'code' => 1,
                 'token' => $token->plainTextToken,
@@ -35,6 +42,8 @@ class AccessTokensController extends Controller
 
         }
 
+        // we use ::json with API
+        // return error
         return Response::json([
             'code' => 0,
             'message' => 'Invalid credentials',
@@ -51,11 +60,13 @@ class AccessTokensController extends Controller
         // $user->tokens()->delete();
 
         if (null === $token) {
-            $user->currentAccessToken()->delete();
+            // $user->currentAccessToken()->delete();
             return;
         }
 
+        // get token from database
         $personalAccessToken = PersonalAccessToken::findToken($token);
+        // check if this token regards to this user
         if (
             $user->id == $personalAccessToken->tokenable_id 
             && get_class($user) == $personalAccessToken->tokenable_type

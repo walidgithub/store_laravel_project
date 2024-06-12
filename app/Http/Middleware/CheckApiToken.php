@@ -19,6 +19,7 @@ class CheckApiToken
     {
         $token = $request->header('x-api-key');
         if ($token !== config('app.api_token')) {
+            // we use ::json with API
             return Response::json([
                 'message' => 'Invalid API Key',
             ], 400);
